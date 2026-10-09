@@ -1,0 +1,41 @@
+{
+  "marketplace_id": "DE",
+  "language": "de",
+  "limits": { "title": 200, "bullet": 500, "search_terms_bytes": 250 },
+  "rules": [
+    {
+      "rule_type": "absolute_term",
+      "description": "绝对化用语：德国站对最高级/绝对化承诺审核严格",
+      "banned_words": [
+        "beste", "bester", "billigste", "billigster", "nummer eins", "weltbeste",
+        "garantiert", "100% garantie", "perfekt", "unschlagbar", "günstigster preis"
+      ]
+    },
+    {
+      "rule_type": "medical_claim",
+      "description": "医疗功效词",
+      "banned_words": [
+        "heilt", "heilung", "behandelt", "vorbeugt krankheiten", "krebsheilung",
+        "medizinisch getestet", "desinfiziert"
+      ]
+    },
+    {
+      "rule_type": "promo_term",
+      "description": "促销/交易诱导词",
+      "banned_words": [
+        "kostenloser versand", "rabatt", "sale", "jetzt kaufen", "nur begrenzt",
+        "bestpreis", "geld zurück"
+      ]
+    }
+  ],
+  "categories": {
+    "Electronics": {
+      "banned_words": ["absolut wasserdicht", "unzerbrechlich"],
+      "note": "电子产品禁止绝对防水/不可损坏承诺"
+    },
+    "Food": {
+      "banned_words": ["biologisch garantiert", "entgiftet", "garantiert abnehmen"],
+      "note": "食品类目 organic/减肥等宣称受限"
+    }
+  }
+}

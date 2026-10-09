@@ -1,0 +1,34 @@
+# ---- Web 框架 ----
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+python-multipart>=0.0.9
+
+# ---- 数据校验与配置 ----
+pydantic>=2.8,<3.0
+pydantic-settings>=2.4,<3.0
+email-validator>=2.1
+python-dotenv>=1.0
+
+# ---- 数据库 ----
+SQLAlchemy>=2.0.30,<2.2
+alembic>=1.13
+psycopg2-binary>=2.9.9
+
+# ---- 外部调用 ----
+httpx>=0.27
+tenacity>=8.3          # 备用重试库（当前内置指数退避实现，保留以便扩展）
+
+# ---- 模板与导出 ----
+Jinja2>=3.1
+openpyxl>=3.1.2
+
+# ---- 安全 ----
+PyJWT>=2.8
+cryptography>=42.0
+
+# ---- 任务调度 ----
+APScheduler>=3.10,<4.0
+
+# ---- 测试 ----
+pytest>=8.0
+pytest-asyncio>=0.23

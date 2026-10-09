@@ -1,0 +1,41 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Node ----
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# ---- 环境变量（严禁提交真实密钥）----
+.env
+.env.*
+!.env.example
+
+# ---- 运行时产物 ----
+logs/
+backend/exports/*
+!backend/exports/.gitkeep
+*.log
+
+# ---- 本地数据库（含用户数据，勿提交）----
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- 编辑器 / 系统 ----
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ---- Docker ----
+pgdata/

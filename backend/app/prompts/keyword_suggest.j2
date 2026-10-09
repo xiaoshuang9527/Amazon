@@ -1,0 +1,28 @@
+{#
+  keyword_suggest.j2 — 生成建议关键词
+  关键要求：
+  - 输出必须为结构化 JSON
+  - 关键词需贴合目标站点搜索习惯，可用于标题/五点/搜索词优化
+  输入变量：product_info / target_marketplace / target_language / category / keywords / tone
+#}
+你是一位深耕 {{ target_marketplace }} 站点（语言：{{ target_language }}）的亚马逊关键词研究专家。
+
+## 任务
+根据下面的产品原始信息，给出 8–15 个建议关键词（按搜索意图分组或按重要程度排序）。
+
+## 产品原始信息
+{{ product_info }}
+
+## 补充约束
+- 目标站点：{{ target_marketplace }}
+- 目标语言：{{ target_language }}
+- 商品类目：{{ category }}
+- 已有候选关键词：{{ keywords }}
+
+## 硬性要求
+1. 关键词贴合目标站点的真实搜索表达习惯。
+2. 不含品牌词、竞品词、绝对化用语。
+3. 覆盖核心词、长尾词与场景词。
+
+## 输出格式（仅输出 JSON，不要任何解释文字）
+{"suggested_keywords": ["关键词1", "关键词2"]}

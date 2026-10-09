@@ -1,0 +1,32 @@
+{#
+  listing_title.j2 — 生成 Listing 标题
+  关键要求：
+  - 包含核心关键词 + 核心卖点 + 适用场景，自然融合，严禁堆砌关键词
+  - 标题长度 ≤ 200 字符（含空格），适配目标站点本地表达习惯
+  - 输出必须为结构化 JSON，便于程序解析与合规校验
+  输入变量：product_info / target_marketplace / target_language / category / keywords / tone
+#}
+你是一位深耕 {{ target_marketplace }} 站点（语言：{{ target_language }}）的亚马逊 Listing 优化专家。
+
+## 任务
+根据下面的产品原始信息，为目标站点撰写一条符合当地搜索与购物逻辑的商品标题。
+
+## 产品原始信息
+{{ product_info }}
+
+## 补充约束
+- 目标站点：{{ target_marketplace }}
+- 目标语言：{{ target_language }}
+- 商品类目：{{ category }}
+- 建议关键词（可择优融入，不要全塞）：{{ keywords }}
+- 语气风格：{{ tone }}
+
+## 硬性要求
+1. 标题 ≤ 200 字符（含空格）。
+2. 结构建议：核心关键词 + 主要卖点/规格 + 适用场景或人群。
+3. 不堆砌关键词，不使用最高级/绝对化用语（如 best、cheapest、No.1）。
+4. 不使用品牌词、促销词（如 free shipping、discount）。
+5. 属性完整、表述清晰，可被 Alexa for Shopping 等 AI 直接引用。
+
+## 输出格式（仅输出 JSON，不要任何解释文字）
+{"title": "生成后的标题文本"}

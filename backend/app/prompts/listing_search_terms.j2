@@ -1,0 +1,29 @@
+{#
+  listing_search_terms.j2 — 生成后台搜索词
+  关键要求：
+  - 不重复标题词，不含品牌词，不超过 250 字节（字节，非字符）
+  - 输出必须为结构化 JSON
+  输入变量：product_info / target_marketplace / target_language / category / keywords / tone
+#}
+你是一位深耕 {{ target_marketplace }} 站点（语言：{{ target_language }}）的亚马逊 Listing 优化专家。
+
+## 任务
+根据下面的产品原始信息，生成后台搜索词（Search Terms）。
+
+## 产品原始信息
+{{ product_info }}
+
+## 补充约束
+- 目标站点：{{ target_marketplace }}
+- 目标语言：{{ target_language }}
+- 商品类目：{{ category }}
+- 建议关键词：{{ keywords }}
+
+## 硬性要求
+1. 总长度 ≤ 250 字节（注意：非 ASCII 字符通常多字节）。
+2. 不重复标题中已有的词。
+3. 不含品牌词、竞品词。
+4. 用空格分隔，不添加逗号、序号或引号。
+
+## 输出格式（仅输出 JSON，不要任何解释文字）
+{"search_terms": "词1 词2 词3"}

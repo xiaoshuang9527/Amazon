@@ -1,0 +1,46 @@
+{
+  "marketplace_id": "US",
+  "language": "en",
+  "limits": { "title": 200, "bullet": 500, "search_terms_bytes": 250 },
+  "rules": [
+    {
+      "rule_type": "absolute_term",
+      "description": "绝对化用语：亚马逊禁止最高级、绝对化承诺",
+      "banned_words": [
+        "best", "best seller", "cheapest", "number one", "#1", "top rated",
+        "world's best", "the best", "guaranteed", "100% guarantee", "perfect",
+        "unbeatable", "lowest price", "best quality", "most popular"
+      ]
+    },
+    {
+      "rule_type": "medical_claim",
+      "description": "医疗功效词：普通商品禁止宣称治疗/预防疾病",
+      "banned_words": [
+        "cure", "cures", "treat", "treats", "prevent disease", "heal",
+        "heals", "anti-cancer", "fda approved", "medical grade", "kill bacteria"
+      ]
+    },
+    {
+      "rule_type": "promo_term",
+      "description": "平台禁止的促销/交易诱导词",
+      "banned_words": [
+        "free shipping", "discount", "on sale", "buy now", "limited time",
+        "best price", "money back", "satisfaction guaranteed", "clearance"
+      ]
+    }
+  ],
+  "categories": {
+    "Electronics": {
+      "banned_words": ["waterproof completely", "unbreakable", "never breaks"],
+      "note": "电子产品禁止绝对防水/不可损坏等承诺"
+    },
+    "Food": {
+      "banned_words": ["organic", "natural cure", "detox", "weight loss guaranteed"],
+      "note": "食品类目 organic/detox 等宣称受严格限制"
+    },
+    "Beauty": {
+      "banned_words": ["anti-aging guaranteed", "removes wrinkles permanently", "cure acne"],
+      "note": "美妆类目禁止永久性功效宣称"
+    }
+  }
+}

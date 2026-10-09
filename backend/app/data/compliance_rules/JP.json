@@ -1,0 +1,41 @@
+{
+  "marketplace_id": "JP",
+  "language": "ja",
+  "limits": { "title": 200, "bullet": 500, "search_terms_bytes": 250 },
+  "rules": [
+    {
+      "rule_type": "absolute_term",
+      "description": "绝对化用语：日本站禁止最高级/断定性表述",
+      "banned_words": [
+        "最高", "最安", "ナンバーワン", "世界一", "完全保証", "絶対",
+        "完璧", "業界一", "必ず"
+      ]
+    },
+    {
+      "rule_type": "medical_claim",
+      "description": "医疗功效词：医薬品医療機器等法相关",
+      "banned_words": [
+        "治る", "治療", "予防", "病気を防ぐ", "がんに効く", "殺菌",
+        "医薬品", "効果絶大"
+      ]
+    },
+    {
+      "rule_type": "promo_term",
+      "description": "促销/交易诱导词",
+      "banned_words": [
+        "送料無料", "セール", "今すぐ買う", "期間限定", "激安",
+        "大幅値引き", "返金保証"
+      ]
+    }
+  ],
+  "categories": {
+    "Electronics": {
+      "banned_words": ["完全防水", "絶対に壊れない"],
+      "note": "电子产品禁止绝对防水/不可损坏承诺"
+    },
+    "Food": {
+      "banned_words": ["有機栽培保証", "ダイエット保証", "デトックス"],
+      "note": "食品类目有机/减肥等宣称受限"
+    }
+  }
+}
