@@ -18,8 +18,10 @@ import type {
   GenerationRow,
   ListingDiff,
   ListingRow,
+  PlanRead,
   ShopRead,
   SourceContentPayload,
+  SubscribeResponse,
   TaskStatus,
   TokenRead,
   UsageRead,
@@ -128,6 +130,11 @@ export function downloadBlob(blob: Blob, filename: string): void {
 }
 
 export const authApi = {
+  changePassword: (oldPassword: string, newPassword: string) =>
+    httpPost<{ message: string }>('/auth/password', {
+      old_password: oldPassword,
+      new_password: newPassword
+    }),
   register: (email: string, password: string) =>
     httpPost<UserRead>('/auth/register', { email, password }),
   login: (email: string, password: string) => {
@@ -139,11 +146,21 @@ export const authApi = {
     })
   },
   me: () => httpGet<UserRead>('/auth/me'),
-  shops: () => httpGet<ShopRead[]>('/auth/shops')
+  shops: () => httpGet<ShopRead[]>('/auth/shops'),
+  authorizeUrl: () =>
+    httpGet<{ authorize_url: string; state: string; configured: boolean }>('/auth/spapi/authorize'),
+  revokeShop: (shopId: number) =>
+    request<{ shop_id: number; message: string }>({
+      method: 'DELETE',
+      url: `/auth/shops/${shopId}`
+    })
 }
 
 export const billingApi = {
-  usage: () => httpGet<UsageRead>('/billing/usage')
+  usage: () => httpGet<UsageRead>('/billing/usage'),
+  plans: () => httpGet<PlanRead[]>('/billing/plans'),
+  subscribe: (plan: string, period: 'monthly' | 'yearly' = 'monthly') =>
+    httpPost<SubscribeResponse>('/billing/subscribe', { plan, period })
 }
 
 export const adminApi = {

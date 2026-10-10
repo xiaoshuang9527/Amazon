@@ -4,12 +4,11 @@
       <el-col :span="12">
         <el-card>
           <template #header><span class="title">当前套餐</span></template>
-          <div class="plan-name">{{ currentPlan.name }}</div>
+          <div class="plan-name">{{ currentPlanName }}</div>
           <div class="plan-price">
-            ¥{{ currentPlan.price }}<span class="unit">/月</span>
-            <span v-if="currentPlan.yearly" class="yearly">相当于 ¥{{ Math.round(currentPlan.yearly / 12) }}/月</span>
+            ¥{{ currentPlanPrice }}<span class="unit">/月</span>
           </div>
-          <p class="desc">{{ currentPlan.desc }}</p>
+          <p class="desc">{{ currentPlanDesc }}</p>
         </el-card>
       </el-col>
       <el-col :span="12">
@@ -28,19 +27,22 @@
     <el-card>
       <template #header><span class="title">套餐列表</span></template>
       <el-row :gutter="16">
-        <el-col :span="8" v-for="plan in plans" :key="plan.key">
-          <el-card :class="['plan-card', { active: plan.key === currentPlan.key }]">
+        <el-col :span="8" v-for="plan in plans" :key="plan.code">
+          <el-card :class="['plan-card', { active: plan.code === usage.plan }]">
             <h3>{{ plan.name }}</h3>
-            <div class="price">¥{{ plan.price }}<span class="unit">/月</span></div>
-            <div class="yearly">年付 ¥{{ plan.yearly }}（相当于 ¥{{ Math.round(plan.yearly / 12) }}/月）</div>
-            <p class="desc">{{ plan.desc }}</p>
+            <div class="price">¥{{ plan.price_monthly }}<span class="unit">/月</span></div>
+            <div class="yearly">
+              年付 ¥{{ plan.price_yearly }}（相当于 ¥{{ Math.round(plan.price_per_month_yearly) }}/月）
+            </div>
+            <p class="desc">每月 {{ plan.monthly_quota }} 条 Listing 生成</p>
             <el-button
               type="primary"
               style="width: 100%"
-              :disabled="plan.key === currentPlan.key"
+              :loading="subscribing === plan.code"
+              :disabled="plan.code === usage.plan"
               @click="handleSubscribe(plan)"
             >
-              {{ plan.key === currentPlan.key ? '当前套餐' : '升级 / 订阅' }}
+              {{ plan.code === usage.plan ? '当前套餐' : '升级 / 订阅' }}
             </el-button>
           </el-card>
         </el-col>
@@ -50,18 +52,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { billingApi, errorMessage } from '../api'
+import type { PlanRead, UsageRead } from '../types'
 
-const plans = [
-  { key: 'free', name: '免费版', price: 0, yearly: 0, desc: '每月 3 条 Listing 生成，基础导出' },
-  { key: 'basic', name: '基础版', price: 199, yearly: 1999, desc: '50 条/月，单店铺' },
-  { key: 'pro', name: '专业版', price: 399, yearly: 3999, desc: '200 条/月，多店铺，高质量模型' }
-]
+const plans = ref<PlanRead[]>([])
+const subscribing = ref('')
 
-const currentPlan = ref(plans[0])
-const used = ref(0)
-const total = ref(3)
+const usage = reactive<UsageRead>({
+  plan: 'free',
+  status: 'active',
+  quota_total: 0,
+  quota_used: 0,
+  quota_remaining: 0
+})
+
+const used = computed(() => usage.quota_used)
+const total = computed(() => usage.quota_total)
+
+const currentPlan = computed(() => plans.value.find((p) => p.code === usage.plan))
+const currentPlanName = computed(() => currentPlan.value?.name || usage.plan)
+const currentPlanPrice = computed(() => currentPlan.value?.price_monthly ?? 0)
+const currentPlanDesc = computed(() =>
+  currentPlan.value ? `每月 ${currentPlan.value.monthly_quota} 条 Listing 生成` : '—'
+)
 
 const usagePercent = computed(() => {
   if (!total.value) return 0
@@ -75,10 +90,30 @@ const usageColor = computed(() => {
   return '#67c23a'
 })
 
-const handleSubscribe = (plan: any) => {
-  ElMessage.info(`正在创建订单：${plan.name}（MVP 阶段支持管理员手动开通）`)
-  // TODO: 调用 POST /billing/subscribe 创建订单
+async function loadData() {
+  try {
+    const [planList, usageData] = await Promise.all([billingApi.plans(), billingApi.usage()])
+    plans.value = planList
+    Object.assign(usage, usageData)
+  } catch (error) {
+    ElMessage.error(errorMessage(error, '加载套餐信息失败'))
+  }
 }
+
+const handleSubscribe = async (plan: PlanRead) => {
+  subscribing.value = plan.code
+  try {
+    const result = await billingApi.subscribe(plan.code, 'monthly')
+    ElMessage.success(`已开通 ${plan.name}，金额 ¥${result.amount}（MVP：直接开通，支付二期接入）`)
+    Object.assign(usage, await billingApi.usage())
+  } catch (error) {
+    ElMessage.error(errorMessage(error, '开通套餐失败'))
+  } finally {
+    subscribing.value = ''
+  }
+}
+
+onMounted(loadData)
 </script>
 
 <style scoped>

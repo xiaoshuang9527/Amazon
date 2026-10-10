@@ -15,7 +15,7 @@
               <el-input v-model="pwdForm.confirmPassword" type="password" show-password />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handleChangePassword">保存</el-button>
+              <el-button type="primary" :loading="saving" @click="handleChangePassword">保存</el-button>
             </el-form-item>
           </el-form>
         </el-card>
@@ -23,11 +23,12 @@
 
       <el-col :span="12">
         <el-card>
-          <template #header><span class="title">API 用量</span></template>
-          <el-descriptions :column="1" border>
-            <el-descriptions-item label="本月生成次数">{{ apiUsage.generations }}</el-descriptions-item>
-            <el-descriptions-item label="消耗 Token">{{ apiUsage.tokens }}</el-descriptions-item>
-            <el-descriptions-item label="预估成本">¥{{ apiUsage.cost }}</el-descriptions-item>
+          <template #header><span class="title">我的额度</span></template>
+          <el-descriptions :column="1" border v-loading="usageLoading">
+            <el-descriptions-item label="当前套餐">{{ planLabel }}</el-descriptions-item>
+            <el-descriptions-item label="本月配额">{{ usage.quota_total }}</el-descriptions-item>
+            <el-descriptions-item label="已使用">{{ usage.quota_used }}</el-descriptions-item>
+            <el-descriptions-item label="剩余额度">{{ usage.quota_remaining }}</el-descriptions-item>
           </el-descriptions>
         </el-card>
       </el-col>
@@ -36,8 +37,10 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { authApi, billingApi, errorMessage } from '../api'
+import type { UsageRead } from '../types'
 
 const pwdForm = reactive({
   oldPassword: '',
@@ -45,13 +48,20 @@ const pwdForm = reactive({
   confirmPassword: ''
 })
 
-const apiUsage = reactive({
-  generations: 0,
-  tokens: 0,
-  cost: '0.00'
+const saving = ref(false)
+const usageLoading = ref(false)
+const usage = reactive<UsageRead>({
+  plan: 'free',
+  status: 'active',
+  quota_total: 0,
+  quota_used: 0,
+  quota_remaining: 0
 })
 
-const handleChangePassword = () => {
+const PLAN_LABELS: Record<string, string> = { free: '免费版', basic: '基础版', pro: '专业版' }
+const planLabel = computed(() => PLAN_LABELS[usage.plan] || usage.plan)
+
+const handleChangePassword = async () => {
   if (!pwdForm.oldPassword || !pwdForm.newPassword) {
     ElMessage.warning('请填写完整密码信息')
     return
@@ -60,9 +70,34 @@ const handleChangePassword = () => {
     ElMessage.warning('两次输入的新密码不一致')
     return
   }
-  // TODO: 调用 PUT /auth/password
-  ElMessage.success('密码修改成功')
+  if (pwdForm.newPassword.length < 6) {
+    ElMessage.warning('新密码至少 6 位')
+    return
+  }
+  saving.value = true
+  try {
+    await authApi.changePassword(pwdForm.oldPassword, pwdForm.newPassword)
+    ElMessage.success('密码修改成功')
+    pwdForm.oldPassword = ''
+    pwdForm.newPassword = ''
+    pwdForm.confirmPassword = ''
+  } catch (error) {
+    ElMessage.error(errorMessage(error, '密码修改失败'))
+  } finally {
+    saving.value = false
+  }
 }
+
+onMounted(async () => {
+  usageLoading.value = true
+  try {
+    Object.assign(usage, await billingApi.usage())
+  } catch (error) {
+    ElMessage.error(errorMessage(error, '加载额度失败'))
+  } finally {
+    usageLoading.value = false
+  }
+})
 </script>
 
 <style scoped>

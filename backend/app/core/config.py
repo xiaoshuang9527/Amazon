@@ -84,8 +84,8 @@ class Settings(BaseSettings):
     @classmethod
     def _normalize_provider(cls, v: str) -> str:
         provider = (v or "").strip().lower()
-        if provider not in {"deepseek", "openai"}:
-            raise ValueError("LLM_PROVIDER 仅支持 deepseek / openai")
+        if provider not in {"deepseek", "openai", "agnes"}:
+            raise ValueError("LLM_PROVIDER 仅支持 deepseek / openai / agnes")
         return provider
 
 

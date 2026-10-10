@@ -156,6 +156,55 @@ class OpenAIProvider(LLMProvider):
         return _build_response(data, model)
 
 
+class AgnesProvider(LLMProvider):
+    """Agnes AI（OpenAI 兼容协议，聚合网关）。
+
+    与官方 OpenAI 的两点差异，这里做兼容处理：
+    1. 只接受字符串形式的 message content，不认 Anthropic 风格的
+       content 数组（含 cache_control），因此发送前先压平；
+    2. 未必支持 ``response_format={"type": "json_object"}``，先试带该参数，
+       若被拒（4xx）则去掉重试一次。
+    """
+
+    name = "agnes"
+
+    @staticmethod
+    def _flatten_messages(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        flattened: List[Dict[str, Any]] = []
+        for message in messages:
+            content = message.get("content")
+            if isinstance(content, list):
+                parts = []
+                for item in content:
+                    if isinstance(item, dict):
+                        parts.append(str(item.get("text", "")))
+                    else:
+                        parts.append(str(item))
+                content = "\n".join(p for p in parts if p)
+            flattened.append({"role": message.get("role", "user"), "content": content})
+        return flattened
+
+    async def generate(self, messages: List[Dict[str, Any]], **kwargs: Any) -> LLMResponse:
+        model = kwargs.get("model") or settings.LLM_MODEL_STANDARD
+        payload = {
+            "model": model,
+            "messages": self._flatten_messages(messages),
+            "temperature": kwargs.get("temperature", 0.7),
+        }
+        try:
+            data = await self._post_chat({**payload, "response_format": {"type": "json_object"}})
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in (400, 404, 422):
+                logger.warning(
+                    "Agnes 拒绝 response_format，降级为普通模式重试",
+                    extra={"status": exc.response.status_code},
+                )
+                data = await self._post_chat(payload)
+            else:
+                raise
+        return _build_response(data, model)
+
+
 def _build_response(data: Dict[str, Any], model: str) -> LLMResponse:
     try:
         content = data["choices"][0]["message"]["content"]
@@ -186,6 +235,12 @@ class LLMGateway:
 
     @staticmethod
     def _build_provider() -> LLMProvider:
+        if settings.LLM_PROVIDER == "agnes":
+            return AgnesProvider(
+                api_key=settings.LLM_API_KEY,
+                base_url=settings.LLM_BASE_URL,
+                timeout=settings.LLM_TIMEOUT,
+            )
         if settings.LLM_PROVIDER == "openai":
             return OpenAIProvider(
                 api_key=settings.LLM_API_KEY,

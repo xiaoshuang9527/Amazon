@@ -53,6 +53,23 @@ export interface ShopRead {
   created_at?: string
 }
 
+export interface PlanRead {
+  code: string
+  name: string
+  price_monthly: number
+  price_yearly: number
+  price_per_month_yearly: number
+  monthly_quota: number
+  features: string[]
+}
+
+export interface SubscribeResponse {
+  order_created: boolean
+  plan: string
+  period: string
+  amount: number
+}
+
 export interface AuthUser extends UserRead {
   nickname: string
   plan: string

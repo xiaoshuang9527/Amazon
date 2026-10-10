@@ -12,6 +12,7 @@ from app.schemas.generation import (
 from app.schemas.listing import ListingCreate, ListingRead, ValidateRequest, ValidateResponse
 from app.schemas.user import (
     AdminPasswordReset,
+    PasswordChange,
     Token,
     UserAdminUpdate,
     UserCreate,
@@ -25,6 +26,7 @@ __all__ = [
     "UserLogin",
     "UserAdminUpdate",
     "AdminPasswordReset",
+    "PasswordChange",
     "Token",
     "ListingCreate",
     "ListingRead",
